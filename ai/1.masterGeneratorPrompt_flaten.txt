@@ -1,0 +1,518 @@
+I want you to help me to build a Java application that flattens a directory structure (including contents/files) into a single text file (ignoring some particular files as I explain later on). 
+* need a Java 17 application that recursively traverses a directory specified via command-line argument, concatenating the contents of all text files (identified by their extensions or lack thereof from a dynamically loaded ignore list) into a single output file completely TEXT oriented (NO Binaries).
+
+The main points the application should:
+
+- Input:
+Absolute path to the source directory (e.g., /a/b/src).
+Path to an ignore list file (ignoreBinaryList.flatIgnore).
+Path to an error log file (logErrorFlat.log).
+Path to a summary log file (summary.log).
+Path to the output flat file (FLAT_root.flat).
+
+
+Details: 
+
+- Most of the app parameters can be found in the flating.properties so the user can use the default values (or the previously overwritten in file.)
+
+-Ignore List: Load rules from a file (example ignoreBinaryList.flatIgnore), supporting file extensions, directory names, and absolute file paths.
+
+-Text File Handling: Read the content of each file, using a specific encodign (example UTF-8), and append it to the FLAT_root.flat file.
+
+-File Separators: Use a specific delimiter.line (e.g., "--🖤ñÑñ----🌞ñÑñ----♠️ñÑñ----❌--") as a line separator and delimiter.context (e.g., "--❌----ñÑñ️♠----ñÑñ🌞----ñÑñ🖤--") as a content separator, read from flating.properties. The delimiter.context should be greater than the filePath size.
+
+-Error Handling: Non-blocking; log errors (e.g., permission issues, I/O errors) in logErrorFlat.log and continue processing.
+
+-File Size Handling: Calculate the size of each file before appending. If a file exceeds 1MB, truncate it, add a warning in logErrorFlat.log, and continue processing.
+
+- Summary Log: Write a summary to summary.log, including the number of files copied, bytes copied, files ignored, and files that failed to process, along with their reasons for failure.
+
+- Configuration: Load default values from flating.properties if command-line arguments are not provided. The file should contain delimiter.line, delimiter.context, ignoreList.file, error.file, summary.file, and encoding properties.
+Output File Format: The FLAT_root.flat file should contain the following structure for each included file:
+
+<delimiter.line>
+<file_path>
+<delimiter.context>
+<file_content>
+<delimiter.line>
+
+Code Quality: FOr the architecture and development of the application you have to act as the MOST senior software engineer with the best practices, including clean code, diagrams (e.g., UML class diagram), and proper method signatures, detail comments, javadocs, naming conventions, etc.
+
+Ignore File Format: The ignore file should support comments, extensions, directory names, and absolute file paths. For Example:
+"
+# Extensions
+*.log
+*.tmp
+
+# Directories
+/path/to/ignore/directory/
+
+# Absolute files
+/path/to/specific/file.txt
+"
+
+The application can use any popular external libraries (e.g., for file system traversal, logging, or command-line argument parsing)? if one can used without issues (copyright, payment, etc).
+
+Error Log Details: All details of why a file or process of copying is not completed, including timestamp, reason, stacktrace, etc.
+
+Truncation Strategy: For files bigger than 1MB we will truncate from the head to the bottom, a specific message should be logged in logErrorFlat.log when a file is truncated. Something like "file /a/b/c.json of size 20Mb has been truncated to 1mb".
+
+
+UML Diagram: For the Diagrams, I need just some Entity and the relevant component and sequence of the app. you can use marmaid or some diagrams that can be generated from text or simply make it simple in a TXT interface oriented.
+
+
+Here is an example of one of many java projects I would love to FLATTen, in this case the one in /a/b/
+
+/a/b/>
+├── src/                      # Source code
+│   ├── commands/             # CLI command implementations
+│   │   ├── Dockerfile        # Dockerfile for containerizing the app
+│   └── README.md             # Documentation for CLI usage
+│   ├── build.sh              # Build script
+│   ├── video.mp4              # Some binary
+│   ├── image.jpg              # Some binary
+│   ├── test.sh               # Testing script
+│   ├── deploy.sh             # Deployment script
+│   ├── configure.sh          # Configuration script
+│   ├── run.sh                # Script to run the application
+│   └── cleanup.sh            # Cleanup script
+├── community/                # Community-related content
+│   ├── authors/              # Information about contributors/authors
+│   │   ├── photos/           # Photos of contributors
+│   │   └── bios.md           # Short bios of contributors
+│   ├── notes/                # Community meeting notes or discussions
+│   └── feedback/             # Feedback from users/community
+├── .gitignore                # Git ignore file
+├── README.md                 # Project overview and quick start guide
+├── LICENSE                   # License file
+└── SECURITY.md               # Security policies and guidelines
+
+
+I want to run the utility sth similar like this:
+"
+> pwd
+/a/b
+>
+ java -jar flating /a/b FLAT_root.flat ignoreBinaryList.flatIgnore logErrorFlat.log summary.log 
+"
+
+1. FLAT_root.flat the file containing all the Text representing all the files of my project
+2. gnoreBinaryList.flatIgnore is a list (similar concept of git ignore) where I indicate which extensions or specific/absolutePath files I dont want to include in the flatting process (final file result)
+3. logErrorFlat.log here the app will store all the errors of the apps, for example (but not only) which files couldnt be open, which resources couldnt be accesed, copied, if the program has some internal issue (memory, etc). 
+4. summary.log a file explaining which files where included in FLAT_root.flat, how many bytes were copied, how many positive files where flat, how many failed, and the final structure of what was successful in the .flat file ... sth like this (only as suggestion)
+
+"
+Files copied in flat: 4
+	src/commands/Dockerfile		30 bytes
+	src/README.md 				100  Kb
+	src/build.sh				290 Kb
+	src/run.sh 					1 Mb
+
+Files ignored:  230
+Files unable to be processed : 2
+	src/configure.sh  			(permissions error)
+	src/cleanup.sh 				(i/o error)
+
+Flat filename = FLAT_root.flat
+Flat total size = 1450 Kb
+
+
+
+
+
+
+
+Some extra Notes:
+- there is a flating.properties where attributes can be specified, so if the user is not making this explicitly from the prompt the values are taken from flating.properties, here is the example of that properties with the default values:
+"
+# Line Delimiter 
+delimiter.line=--🖤ñÑñ----🌞ñÑñ----♠️ñÑñ----❌--
+delimiter.context=--❌----ñÑñ️♠----ñÑñ🌞----ñÑñ🖤--
+ignoreList.file=ignoreBinaryList.flatIgnore
+error.file=logErrorFlat.log
+summary.file=summary.log
+"
+- Notice the file separator is a combination von difficult characters to be found inside the provided files. Its a combination of many times of the delimiter.line parameter (for example  "--🖤ñÑñ----🌞ñÑñ----♠️ñÑñ----❌--" ) and the content separator is a a combination of the delimiter.context string (for example "--❌----ñÑñ️♠----ñÑñ🌞----ñÑñ🖤--"). 
+- The important is that the repetition of delimiter chars cover the entire line (for the line separator) and the context is at least greater than the filePath written. For example if the path is "src/a.hot" then only 1 delimiter.context is needed since the charSize(delimiter.context) is bigger than the charSize(path)
+
+-When files are not readable/handable or in case of any error, the logic should continue (nonBlocking) we simply exclude them and keep the process,
+
+
+#default character encoding for reading the text files
+encoding=UTF-8
+
+
+what is the expected format of this file? Ai suggest me sth. I was thinking just sth like 
+"
+# ============================================================
+# Extensions of Binaries or Not neeeded files
+# ============================================================
+*.swp              # Vim swap files
+*.sublime-workspace # Sublime Text workspace
+*.pyd
+*.docx
+*.zip
+*.mp4
+
+
+# ==============================
+# Entire folder
+# ==============================
+# Java
+target/           # Maven build output
+*.class           # Compiled Java classes
+*.jar
+
+
+# ==============================
+# Miscellaneous
+# ==============================
+.env.local        # Local environment overrides
+*.secret          # Files containing secrets
+dump.rdb          # Redis database dump
+
+# ==============================
+# Absolute files
+# ==============================
+/src/something1/something2/ThisSpecificVideo.mp4
+
+"
+
+- Should be compatible with java 17
+- You have to of course create the whole project with the best practices of a Senior Software Engineer, clean code, diagrams, identification of main classes and methods with proper signature and so on, even before start writing the code of all the clases. 
+- The software should calculate the size of the file is ingesting/flatting before starts the process of appending in the FLAT file (endFile) to see if the file is overwhelmed. If the ingestion of a file is bigger than 1Mb the system should present and alert and the file should be truncated a Warning should be written in the log indicating the original size and the truncation.
+
+
+
+
+The FLAT_root.flat would look like this 
+"
+--🖤ñÑñ----🌞ñÑñ----♠️ñÑñ----❌----🖤ñÑñ----🌞ñÑñ----♠️ñÑñ----❌----🖤ñÑñ----🌞ñÑñ----♠️ñÑñ----❌--
+src/commands/Dockerfile
+--❌----ñÑñ️♠----ñÑñ🌞----ñÑñ🖤--
+FROM alpine
+CMD ["echo", "Hi"]
+--🖤ñÑñ----🌞ñÑñ----♠️ñÑñ----❌----🖤ñÑñ----🌞ñÑñ----♠️ñÑñ----❌----🖤ñÑñ----🌞ñÑñ----♠️ñÑñ----❌--
+src/README.md
+--❌----ñÑñ️♠----ñÑñ🌞----ñÑñ🖤--
+
+---
+
+### 🧮 File Size Estimate
+
+This example has about **~95,000–105,000 characters**, which translates to around **100 KB** when saved as UTF-8.
+
+You can paste this into a file named `README.md` and verify the size using Terminal:
+
+```bash
+wc -c README.md
+ls -l README.md
+
+--🖤ñÑñ----🌞ñÑñ----♠️ñÑñ----❌----🖤ñÑñ----🌞ñÑñ----♠️ñÑñ----❌----🖤ñÑñ----🌞ñÑñ----♠️ñÑñ----❌--
+src/build.sh
+--❌----ñÑñ️♠----ñÑñ🌞----ñÑñ🖤--
+!/bin/bash
+# build.sh - Simple build script
+
+set -e  # Exit immediately if a command exits with non-zero status
+
+echo "🚀 Starting build process..."
+
+# Constants
+PROJECT_NAME="myapp"
+BUILD_DIR="build"
+SRC_DIR="src"
+DIST_DIR="dist"
+LOG_FILE="build.log"
+
+# Logging function
+log() {
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" | tee -a "$LOG_FILE"
+}
+
+# Clean up previous builds
+log "🧹 Cleaning up old build files..."
+rm -rf "$BUILD_DIR" "$DIST_DIR"
+mkdir -p "$BUILD_DIR" "$DIST_DIR"
+
+# Install dependencies
+log "📦 Installing dependencies..."
+npm install
+
+# Lint code
+log "🔍 Linting source code..."
+npm run lint
+
+# Run tests
+log "🧪 Running unit tests..."
+npm test
+
+# Build application
+log "🏗️ Building application..."
+npm run build
+
+# Move build output
+log "🚚 Moving build output to dist folder..."
+cp -r "$BUILD_DIR"/* "$DIST_DIR/"
+
+# Optional: Package the build
+log "📦 Packaging build into tar.gz..."
+tar -czf "${PROJECT_NAME}-$(date +%Y%m%d).tar.gz" -C "$DIST_DIR" .
+
+log "✅ Build completed successfully!"
+
+--🖤ñÑñ----🌞ñÑñ----♠️ñÑñ----❌----🖤ñÑñ----🌞ñÑñ----♠️ñÑñ----❌----🖤ñÑñ----🌞ñÑñ----♠️ñÑñ----❌--
+src/run.sh
+--❌----ñÑñ️♠----ñÑñ🌞----ñÑñ🖤--
+#!/bin/bash
+#
+# run.sh - Application startup script
+# Version: 1.0
+#
+
+set -Eeuo pipefail
+
+# ==============================
+# Constants and Configuration
+# ==============================
+APP_NAME="myapp"
+PID_FILE="/tmp/${APP_NAME}.pid"
+LOG_DIR="./logs"
+DEFAULT_LOG="$LOG_DIR/run.log"
+CONFIG_FILE=".env"
+MAX_RETRIES=3
+RETRY_DELAY=2
+VERBOSE=false
+DEBUG=false
+
+# ==============================
+# Color Definitions
+# ==============================
+RESET='\033[0m'
+BLACK='\033[0;30m'
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+BLUE='\033[0;34m'
+PURPLE='\033[0;35m'
+CYAN='\033[0;36m'
+WHITE='\033[0;37m'
+
+# ==============================
+# Logging Functions
+# ==============================
+log() {
+    local level="$1"
+    local message="$2"
+    local timestamp=$(date '+%Y-%m-%d %H:%M:%S')
+    echo -e "[$timestamp] [$level] $message" | tee -a "$CURRENT_LOG"
+}
+
+vlog() {
+    if [ "$VERBOSE" = true ]; then
+        log "VERBOSE" "$1"
+    fi
+}
+
+error() {
+    log "ERROR" "${RED}$1${RESET}"
+    exit 1
+}
+
+success() {
+    log "SUCCESS" "${GREEN}$1${RESET}"
+}
+
+warn() {
+    log "WARNING" "${YELLOW}$1${RESET}"
+}
+
+info() {
+    log "INFO" "${BLUE}$1${RESET}"
+}
+
+# ==============================
+# Signal Handling
+# ==============================
+trap 'handle_interrupt' INT TERM
+
+handle_interrupt() {
+    warn "Interrupt detected. Shutting down..."
+    stop_app
+    exit 1
+}
+
+# ==============================
+# Helper Functions
+# ==============================
+check_dependencies() {
+    info "Checking required dependencies..."
+    local missing=()
+
+    for cmd in "curl" "jq" "docker"; do
+        if ! command -v "$cmd" &> /dev/null; then
+            missing+=("$cmd")
+        fi
+    done
+
+    if [ ${#missing[@]} -gt 0 ]; then
+        error "Missing required commands: ${missing[*]}"
+    else
+        success "All dependencies are installed."
+    fi
+}
+
+load_config() {
+    if [ -f "$CONFIG_FILE" ]; then
+        info "Loading configuration from $CONFIG_FILE"
+        export $(grep -v '^#' "$CONFIG_FILE" | xargs)
+    else
+        warn "Config file not found at $CONFIG_FILE. Using defaults."
+    fi
+}
+
+start_app() {
+    info "Starting $APP_NAME..."
+
+    # Simulate app start
+    for i in $(seq 1 $MAX_RETRIES); do
+        vlog "Attempt $i of $MAX_RETRIES to start service..."
+        sleep 1
+        echo "Running internal process..." >> "$CURRENT_LOG"
+    done
+
+    echo $$ > "$PID_FILE"
+    success "$APP_NAME started successfully (PID: $(cat $PID_FILE))"
+}
+
+stop_app() {
+    if [ -f "$PID_FILE" ]; then
+        local pid=$(cat "$PID_FILE")
+        info "Stopping $APP_NAME (PID: $pid)"
+        kill "$pid" || warn "Failed to kill PID: $pid"
+        rm -f "$PID_FILE"
+        success "$APP_NAME stopped."
+    else
+        warn "$APP_NAME is not running (no PID file found)."
+    fi
+}
+
+restart_app() {
+    info "Restarting $APP_NAME..."
+    stop_app
+    sleep $RETRY_DELAY
+    start_app
+}
+
+show_status() {
+    if [ -f "$PID_FILE" ]; then
+        local pid=$(cat "$PID_FILE")
+        if ps -p "$pid" > /dev/null; then
+            success "$APP_NAME is running (PID: $pid)"
+        else
+            warn "$APP_NAME PID file exists but process is not running."
+        fi
+    else
+        warn "$APP_NAME is not running."
+    fi
+}
+
+usage() {
+    cat <<EOF
+Usage: $0 [OPTIONS]
+
+Starts the $APP_NAME service with optional arguments.
+
+Options:
+  -h, --help         Show this help message
+  -v, --verbose      Enable verbose output
+  -d, --debug        Enable debug mode
+  -l, --log FILE     Set custom log file path
+  -c, --config FILE  Specify config file (default: .env)
+  -s, --stop         Stop the running instance
+  -r, --restart      Restart the instance
+  -t, --status       Show current status
+  --no-color         Disable color output
+
+Examples:
+  $0
+  $0 --stop
+  $0 --log /tmp/app.log --verbose
+EOF
+}
+
+# ==============================
+# Main Script Logic
+# ==============================
+CURRENT_LOG="$DEFAULT_LOG"
+
+mkdir -p "$LOG_DIR"
+
+while [[ "$#" -gt 0 ]]; do
+    case "$1" in
+    -h|--help)
+        usage
+        exit 0
+        ;;
+    -v|--verbose)
+        VERBOSE=true
+        shift
+        ;;
+    -d|--debug)
+        DEBUG=true
+        shift
+        ;;
+    -l|--log)
+        CURRENT_LOG="$2"
+        shift 2
+        ;;
+    -c|--config)
+        CONFIG_FILE="$2"
+        shift 2
+        ;;
+    -s|--stop)
+        stop_app
+        exit 0
+        ;;
+    -r|--restart)
+        restart_app
+        shift
+        ;;
+    -t|--status)
+        show_status
+        exit 0
+        ;;
+    --no-color)
+        RESET=''
+        BLACK=''
+        RED=''
+        GREEN=''
+        YELLOW=''
+        BLUE=''
+        PURPLE=''
+        CYAN=''
+        WHITE=''
+        shift
+        ;;
+    *)
+        warn "Unknown parameter: $1"
+        usage
+        exit 1
+        ;;
+    esac
+done
+
+info "Starting $APP_NAME runner..."
+
+check_dependencies
+load_config
+start_app
+
+# Keep running (simulate long-running process)
+tail -f /dev/null &
+wait
+
+--🖤ñÑñ----🌞ñÑñ----♠️ñÑñ----❌----🖤ñÑñ----🌞ñÑñ----♠️ñÑñ----❌----🖤ñÑñ----🌞ñÑñ----♠️ñÑñ----❌--
+"
+
+
