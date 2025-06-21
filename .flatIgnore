@@ -1,0 +1,10 @@
+# Extensions
+*.log
+*.tmp
+
+# Directories
+/src/videos/
+/src/test/
+
+# Absolute files
+/src/commands/video.mp4

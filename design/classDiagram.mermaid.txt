@@ -1,0 +1,36 @@
+classDiagram
+    class MainApp {
+        +main(String[] args)
+    }
+    class ConfigLoader {
+        +loadProperties() : Properties
+    }
+    class IgnoreListParser {
+        +parse(Path filePath) : IgnoreRules
+    }
+    class IgnoreRules {
+        +shouldIgnore(Path path) : boolean
+    }
+    class FlattenerService {
+        +flatten(Path dir)
+    }
+    class FileProcessor {
+        +process(Path file)
+    }
+    class ErrorLogger {
+        +log(Path file, Exception e)
+    }
+    class SummaryLogger {
+        +addProcessed(Path file, long size)
+        +addIgnored(Path file)
+        +addFailed(Path file, String reason)
+        +writeSummary()
+    }
+
+    MainApp --> ConfigLoader
+    MainApp --> IgnoreListParser
+    MainApp --> FlattenerService
+    FlattenerService --> FileProcessor
+    FileProcessor --> ErrorLogger
+    FileProcessor --> SummaryLogger
+    IgnoreListParser --> IgnoreRules

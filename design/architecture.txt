@@ -1,0 +1,46 @@
++------------------------+
+|       MainApp         |  <--- Clase de entrada (CLI)
++------------------------+
+           |
+           v
++------------------------+
+|   ConfigLoader         |  <--- Carga flating.properties
++------------------------+
+           |
+           v
++------------------------+       +---------------------------+
+|   IgnoreListParser     |<----->| IgnoreRules               |
++------------------------+       +---------------------------+
+           |
+           v
++------------------------+       +---------------------------+
+|     FlattenerService   |<----->| FileProcessor             |
++------------------------+       +---------------------------+
+           |
+     +-----+------+--------+
+     |     |      |        |
+     v     v      v        v
+ ErrorLog Summary Output  SizeChecker
+ Writer   Writer  Writer
+
+
+Initial Idea of Application:
+flating-app/
+├── src/
+│   └── main/java/
+│       └── com/flating/
+│           ├── MainApp.java
+│           ├── config/ConfigLoader.java
+│           ├── ignore/IgnoreListParser.java
+│           ├── ignore/IgnoreRulesImpl.java
+│           ├── service/FlattenerService.java
+│           ├── processor/FileProcessor.java
+│           ├── util/ErrorLogger.java
+│           ├── util/SummaryLogger.java
+│           └── util/SizeChecker.java
+├── resources/
+│   ├── flating.properties
+│   └── ignoreBinaryList.flatIgnore
+├── target/
+├── pom.xml
+└── README.md
