@@ -1,2 +1,7 @@
-# flaten
-Flat an entire project of TXT/sources into a single TXT file containing the whole project
+# Flating App
+
+Flatten all text files in a directory recursively into a single `.flat` file.
+
+## Run
+```bash
+java -jar target/flating-app.jar /my/dir FLAT_root.flat ignoreBinaryList.flatIgnore logErrorFlat.log summary.log

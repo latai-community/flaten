@@ -1,0 +1,12 @@
+# Ignore extensions
+*.log
+*.tmp
+*.zip
+*.mp4
+
+# Ignore folders
+/sample_project/logs/
+/sample_project/target/
+
+# Absolute files
+/sample_project/src/ignoreme.txt

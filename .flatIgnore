@@ -1,10 +1,12 @@
-# Extensions
+# Ignore file extensions
 *.log
 *.tmp
+*.mp4
+*.zip
 
-# Directories
+# Ignore specific directories
 /src/videos/
 /src/test/
 
-# Absolute files
+# Absolute file paths
 /src/commands/video.mp4
