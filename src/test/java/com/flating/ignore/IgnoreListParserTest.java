@@ -31,7 +31,7 @@ class IgnoreListParserTest {
 
     @Test
     void testParserLoadsCorrectRules() throws IOException {
-        IgnoreListParser parser = new IgnoreListParser();
+        IgnoreListParser parser = new IgnoreListParser(Path.of("resources/sample_project"));
         IgnoreRulesImpl rules = parser.parse(tempIgnoreFile);
 
         // Extension match

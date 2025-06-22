@@ -37,7 +37,8 @@ public class MainApp {
             SummaryLogger summaryLogger = new SummaryLogger(summaryLogFile);
 
             // 3. Parse ignore rules
-            IgnoreRulesImpl ignoreRules = new IgnoreListParser().parse(ignoreFile);
+            IgnoreListParser ignoreListParser = new IgnoreListParser(sourceDir);
+            IgnoreRulesImpl ignoreRules = ignoreListParser.parse(ignoreFile);
 
             // 4. Run the flattener
             FlattenerService flattener = new FlattenerService(

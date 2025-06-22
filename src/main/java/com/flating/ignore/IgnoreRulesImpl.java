@@ -3,39 +3,42 @@ package com.flating.ignore;
 import java.nio.file.Path;
 import java.util.Set;
 
-/**
- * Holds ignore rules and checks whether a path should be excluded.
- */
+
 public class IgnoreRulesImpl {
 
     private final Set<String> extensions;
-    private final Set<Path> absoluteFiles;
-    private final Set<Path> directories;
+    private final Set<String> absoluteFileRelativePaths;
+    private final Set<String> directoryRelativePaths;
+    private final Path baseSourceDirectory;
 
-    public IgnoreRulesImpl(Set<String> extensions, Set<Path> absoluteFiles, Set<Path> directories) {
+    // Now accepts Set<String> for file and directory patterns
+    public IgnoreRulesImpl(Set<String> extensions, Set<String> absoluteFilePatterns, Set<String> directoryPatterns, Path baseSourceDirectory) {
         this.extensions = extensions;
-        this.absoluteFiles = absoluteFiles;
-        this.directories = directories;
+        this.baseSourceDirectory = baseSourceDirectory;
+
+        this.absoluteFileRelativePaths = absoluteFilePatterns;
+        this.directoryRelativePaths = directoryPatterns;
     }
 
-    /**
-     * Determines whether a given file should be ignored.
-     */
     public boolean shouldIgnore(Path filePath) {
-        Path normalizedPath = filePath.normalize();
+        Path relativePath = baseSourceDirectory.relativize(filePath);
+        String normalizedRelativePathString = relativePath.toString().replace("\\", "/");
 
-        // Absolute file match
-        if (absoluteFiles.contains(normalizedPath)) return true;
-
-        // Extension match (e.g., *.log)
-        String fileName = normalizedPath.getFileName().toString();
-        for (String ext : extensions) {
-            if (fileName.endsWith(ext)) return true;
+        if (absoluteFileRelativePaths.contains(normalizedRelativePathString)) {
+            return true;
         }
 
-        // Directory path match
-        for (Path dir : directories) {
-            if (normalizedPath.startsWith(dir)) return true;
+        String fileName = normalizedRelativePathString.substring(normalizedRelativePathString.lastIndexOf('/') + 1);
+        for (String ext : extensions) {
+            if (fileName.endsWith(ext)) {
+                return true;
+            }
+        }
+
+        for (String dirPattern : directoryRelativePaths) {
+            if (normalizedRelativePathString.startsWith(dirPattern)) {
+                return true;
+            }
         }
 
         return false;

@@ -31,7 +31,7 @@ class FlattenerServiceTest {
     @Test
     void testFlattenerProcessesExpectedFiles() throws IOException {
         // No ignore rules
-        IgnoreRulesImpl ignore = new IgnoreRulesImpl(Set.of(), Set.of(), Set.of());
+        IgnoreRulesImpl ignore = new IgnoreRulesImpl(Set.of(), Set.of(), Set.of(), tempDir);
 
         MockErrorLogger errLogger = new MockErrorLogger();
         MockSummaryLogger summaryLogger = new MockSummaryLogger();
