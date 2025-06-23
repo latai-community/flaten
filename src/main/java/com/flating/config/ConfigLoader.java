@@ -1,8 +1,9 @@
 package com.flating.config;
 
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Properties;
 
 /**
@@ -11,30 +12,52 @@ import java.util.Properties;
  */
 public class ConfigLoader {
 
-    private static final String DEFAULT_PROPERTIES_FILE = "flating.properties";
-
-    public Properties load(String[] args) throws IOException {
-        Properties props = new Properties();
-
-        // 1. Load defaults from flating.properties
-        try (FileInputStream fis = new FileInputStream(DEFAULT_PROPERTIES_FILE)) {
-            props.load(fis);
-        } catch (IOException e) {
-            System.err.println("⚠️ Warning: Could not load flating.properties. Using CLI args only.");
+    public static Properties load(String[] args) throws IOException {
+        if (args.length == 0 || !args[0].startsWith("-option:")) {
+            throw new IllegalArgumentException("Missing required -option:[Args|Prop]");
         }
 
-        // 2. Override certain properties with CLI args if provided
-        if (args.length >= 1) props.setProperty("source.dir", args[0]);
-        if (args.length >= 2) props.setProperty("output.file", args[1]);
-        if (args.length >= 3) props.setProperty("ignoreList.file", args[2]);
-        if (args.length >= 4) props.setProperty("error.file", args[3]);
-        if (args.length >= 5) props.setProperty("summary.file", args[4]);
+        String mode = args[0].substring("-option:".length());
+        Properties props = new Properties();
 
-        // 3. Sanity defaults
+        switch (mode) {
+            case "Args" -> parseInlineArgs(args, props);
+            case "Prop" -> loadFromFile(args, props);
+            default -> throw new IllegalArgumentException("Unknown option mode: " + mode);
+        }
+
+        applyDefaults(props);
+        return props;
+    }
+
+    private static void parseInlineArgs(String[] args, Properties props) {
+        for (String arg : args) {
+            if (arg.contains("=")) {
+                String[] keyValue = arg.split("=", 2);
+                String key = keyValue[0].replaceFirst("^-+", "");
+                props.setProperty(key, keyValue[1]);
+            }
+        }
+    }
+
+    private static void loadFromFile(String[] args, Properties props) throws IOException {
+        if (args.length < 2 || !args[1].startsWith("-fileProp=")) {
+            throw new IllegalArgumentException("Missing or invalid -fileProp argument.");
+        }
+
+        Path propPath = Paths.get(args[1].substring("-fileProp=".length()));
+        if (!Files.exists(propPath)) {
+            throw new IOException("Properties file not found: " + propPath);
+        }
+
+        try (var reader = Files.newBufferedReader(propPath)) {
+            props.load(reader);
+        }
+    }
+
+    private static void applyDefaults(Properties props) {
         props.putIfAbsent("encoding", "UTF-8");
         props.putIfAbsent("delimiter.line", "--🖤ñÑñ----🌞ñÑñ----♠️ñÑñ----❌--");
         props.putIfAbsent("delimiter.context", "--❌----ñÑñ️♠----ñÑñ🌞----ñÑñ🖤--");
-
-        return props;
     }
 }
