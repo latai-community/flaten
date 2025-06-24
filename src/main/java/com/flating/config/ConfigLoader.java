@@ -59,5 +59,6 @@ public class ConfigLoader {
         props.putIfAbsent("encoding", "UTF-8");
         props.putIfAbsent("delimiter.line", "--🖤ñÑñ----🌞ñÑñ----♠️ñÑñ----❌--");
         props.putIfAbsent("delimiter.context", "--❌----ñÑñ️♠----ñÑñ🌞----ñÑñ🖤--");
+        props.putIfAbsent("output.file", "output.flat");
     }
 }

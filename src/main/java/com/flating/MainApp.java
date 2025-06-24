@@ -33,6 +33,7 @@ public class MainApp {
         String delimiterLine = props.getProperty("delimiter.line");
         String delimiterContext = props.getProperty("delimiter.context");
         Path ignoreFilePath = Paths.get(props.getProperty("ignoreList.file")).toAbsolutePath();
+        Path flatOutput = Paths.get(props.getProperty("output.flat.file")).toAbsolutePath();
 
         IgnoreListParser parser = new IgnoreListParser(baseSourceDir);
         IgnoreRulesImpl ignoreRules = parser.parse(ignoreFilePath);
@@ -47,7 +48,7 @@ public class MainApp {
                 delimiterLine,
                 delimiterContext,
                 encoding,
-                outputFile
+                flatOutput
         );
 
         flattenerService.flattenDirectory(baseSourceDir);
