@@ -71,6 +71,7 @@ public class FlattenerService {
                             }
                         });
             }
+            System.out.println("Successfully flattened " + sourceDir + " into \n => " + outputFlatFile);
         } catch (IOException e) {
             System.err.println("❌ Could not write to output file: " + outputFlatFile);
             errorLogger.log(outputFlatFile, e);
