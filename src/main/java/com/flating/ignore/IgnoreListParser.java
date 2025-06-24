@@ -6,14 +6,27 @@ import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * Parses a .flatIgnore file and builds an IgnoreRulesImpl instance.
+ */
 public class IgnoreListParser {
 
     private final Path baseSourceDirectory;
 
+    /**
+     * @param baseSourceDirectory Used to resolve relative ignore patterns.
+     */
     public IgnoreListParser(Path baseSourceDirectory) {
         this.baseSourceDirectory = baseSourceDirectory;
     }
 
+    /**
+     * Parses the ignore rules from a specified .flatIgnore file.
+     *
+     * @param ignoreFile The path to the .flatIgnore file
+     * @return An instance of IgnoreRulesImpl with the parsed rules
+     * @throws IOException if file cannot be read
+     */
     public IgnoreRulesImpl parse(Path ignoreFile) throws IOException {
         Set<String> extensions = new HashSet<>();
         Set<String> absoluteFilePatterns = new HashSet<>();
@@ -32,7 +45,9 @@ public class IgnoreListParser {
                 .forEach(line -> {
                     String processedLine = line.replace("\\", "/");
 
-                    if (processedLine.startsWith("/")) processedLine = processedLine.substring(1);
+                    if (processedLine.startsWith("/")) {
+                        processedLine = processedLine.substring(1);
+                    }
 
                     if (processedLine.startsWith(sourceDirName + "/")) {
                         processedLine = processedLine.substring(sourceDirName.length() + 1);
@@ -48,6 +63,7 @@ public class IgnoreListParser {
                         absoluteFilePatterns.add(processedLine);
                     }
                 });
+
         return new IgnoreRulesImpl(extensions, absoluteFilePatterns, directoryPatterns, baseSourceDirectory);
     }
 }
