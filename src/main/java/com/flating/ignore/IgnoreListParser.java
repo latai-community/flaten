@@ -33,7 +33,8 @@ public class IgnoreListParser {
         Set<String> directoryPatterns = new HashSet<>();
 
         if (!Files.exists(ignoreFile)) {
-            System.err.println("⚠️ Warning: Ignore file not found: " + ignoreFile + " (ignoring nothing)");
+            System.err.println("⚠️ Warning: Ignore file not found at resolved path: " + ignoreFile.toAbsolutePath());
+            System.err.println("   No files will be excluded. You can create the file or adjust ignoreList.file in properties.");
             return new IgnoreRulesImpl(extensions, absoluteFilePatterns, directoryPatterns, baseSourceDirectory);
         }
 

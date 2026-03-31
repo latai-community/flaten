@@ -28,18 +28,22 @@ public class MainApp {
 
     private static void runFlattener(Properties props) throws Exception {
         Path baseSourceDir = Paths.get(props.getProperty("source.dir")).toAbsolutePath();
-        Path outputFile = Paths.get(props.getProperty("summary.file")).toAbsolutePath();
+
+        Path ignoreFilePath = Paths.get(props.getProperty("ignoreList.file")).toAbsolutePath();
+        
+        Path errorLogPath = Paths.get(props.getProperty("error.file")).toAbsolutePath();
+        Path summaryLogPath = Paths.get(props.getProperty("summary.file")).toAbsolutePath();
+
         String encoding = props.getProperty("encoding");
         String delimiterLine = props.getProperty("delimiter.line");
         String delimiterContext = props.getProperty("delimiter.context");
-        Path ignoreFilePath = Paths.get(props.getProperty("ignoreList.file")).toAbsolutePath();
-        Path flatOutput = Paths.get(props.getProperty("output.flat.file")).toAbsolutePath();
-
+        String flatFileName = props.getProperty("output.flat.file", "FLAT_root.flat");
+        Path flatOutput = Paths.get(flatFileName).toAbsolutePath();
         IgnoreListParser parser = new IgnoreListParser(baseSourceDir);
         IgnoreRulesImpl ignoreRules = parser.parse(ignoreFilePath);
 
-        ErrorLogger errorLogger = new ErrorLogger(Paths.get("error.log"));
-        SummaryLogger summaryLogger = new SummaryLogger(Paths.get("summary.log"));
+        ErrorLogger errorLogger = new ErrorLogger(errorLogPath);
+        SummaryLogger summaryLogger = new SummaryLogger(summaryLogPath);
 
         FlattenerService flattenerService = new FlattenerService(
                 ignoreRules,
@@ -49,7 +53,7 @@ public class MainApp {
                 delimiterContext,
                 encoding,
                 flatOutput
-        );
+           );
 
         flattenerService.flattenDirectory(baseSourceDir);
         summaryLogger.writeSummary();

@@ -4,6 +4,7 @@
 *.zip
 *.mp4
 *.gif
+*.flatIgnore
 
 # Ignore folders
 sample_project/logs/

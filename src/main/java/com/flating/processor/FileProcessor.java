@@ -15,7 +15,7 @@ import java.nio.file.Path;
  */
 public class FileProcessor {
 
-    private static final long MAX_FILE_SIZE_BYTES = 1_048_576L; // 1 MB
+    private static final long MAX_FILE_SIZE_BYTES = 1_048_576L * 10; // 10 MB
 
     private final String delimiterLine;
     private final String delimiterContext;
@@ -82,7 +82,8 @@ public class FileProcessor {
 
             writer.flush();
 
-            summaryLogger.addProcessed(file, Math.min(fileSize, MAX_FILE_SIZE_BYTES));
+            summaryLogger.addCopied(file, Math.min(fileSize, MAX_FILE_SIZE_BYTES));
+
 
         } catch (IOException e) {
             errorLogger.log(file, e);

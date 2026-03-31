@@ -61,13 +61,16 @@ public class FlattenerService {
         ) {
             try (Stream<Path> paths = Files.walk(sourceDir)) {
                 paths.filter(Files::isRegularFile)
-                        .filter(path -> !ignoreRules.shouldIgnore(path))
                         .forEach(path -> {
-                            try {
-                                fileProcessor.processFile(path, writer);
-                            } catch (Exception e) {
-                                errorLogger.log(path, e);
-                                summaryLogger.addFailed(path, e.getMessage());
+                            if (ignoreRules.shouldIgnore(path)) {
+                                summaryLogger.incrementIgnored();
+                            } else {
+                                try {
+                                    fileProcessor.processFile(path, writer);
+                                } catch (Exception e) {
+                                    errorLogger.log(path, e);
+                                    summaryLogger.addFailed(path, e.getMessage());
+                                }
                             }
                         });
             }

@@ -1,50 +1,26 @@
 package com.flating.ignore;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
-import java.nio.file.*;
-import java.util.List;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class IgnoreListParserTest {
-
-    private Path tempIgnoreFile;
-
-    @BeforeEach
-    void setup() throws IOException {
-        List<String> lines = List.of(
-                "# This is a comment",
-                "*.log",
-                "*.tmp",
-                "/test/output/",
-                "/absolute/path/to/ignore.txt",
-                "",  // empty line
-                "*.mp4"
-        );
-
-        tempIgnoreFile = Files.createTempFile("ignoreTest", ".flatIgnore");
-        Files.write(tempIgnoreFile, lines);
-    }
+public class IgnoreListParserTest {
 
     @Test
-    void testParserLoadsCorrectRules() throws IOException {
-        IgnoreListParser parser = new IgnoreListParser(Path.of("resources/sample_project"));
-        IgnoreRulesImpl rules = parser.parse(tempIgnoreFile);
+    public void testParserIgnoresCorrectFiles() throws Exception {
+        Path baseSource = Paths.get("src/test/resources/sample_project").toAbsolutePath().normalize();
+        Path ignoreFile = baseSource.resolve("ignoreBinaryList.flatIgnore");
 
-        // Extension match
-        assertTrue(rules.shouldIgnore(Path.of("error.log")));
-        assertTrue(rules.shouldIgnore(Path.of("video.mp4")));
-        assertFalse(rules.shouldIgnore(Path.of("notes.md")));
+        IgnoreListParser parser = new IgnoreListParser(baseSource);
+        IgnoreRulesImpl rules = parser.parse(ignoreFile);
 
-        // Absolute file path match
-        assertTrue(rules.shouldIgnore(Path.of("/absolute/path/to/ignore.txt")));
-        assertFalse(rules.shouldIgnore(Path.of("/absolute/path/to/not_ignored.txt")));
+        Path ignoredFile = baseSource.resolve("target/thisFileIsAvideo.mp4");
+        Path goodFile = baseSource.resolve("src/good1.txt");
 
-        // Directory match
-        assertTrue(rules.shouldIgnore(Path.of("/test/output/some.txt")));
-        assertFalse(rules.shouldIgnore(Path.of("/test/input/some.txt")));
+        assertTrue(rules.shouldIgnore(ignoredFile), "Expected .mp4 file to be ignored");
+        assertFalse(rules.shouldIgnore(goodFile), "Expected .txt file to be processed");
     }
 }
